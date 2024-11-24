@@ -1,0 +1,77 @@
+ 
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  price       Float
+  category    String
+  sale        Boolean   @default(false)
+  description String?
+  imageUrl    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  OrderItem   OrderItem[]
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  userId    String?
+  status    String      @default("pending")
+  total     Float
+  items     OrderItem[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  price     Float
+  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+} 
+
+
+model Recipe {
+  id            Int      @id @default(autoincrement())
+  name          String
+  description   String
+  imageUrl      String
+  ingredients   RecipeIngredient[]
+  instructions  RecipeInstruction[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  category      String?  // e.g., "fusion", "asian", "latin"
+  difficulty    String?  // e.g., "easy", "medium", "hard"
+  prepTime      Int?     // in minutes
+  cookTime      Int?     // in minutes
+  servings      Int?
+  featured      Boolean  @default(false)
+}
+
+model RecipeIngredient {
+  id        Int      @id @default(autoincrement())
+  recipeId  Int
+  name      String
+  amount    String?
+  unit      String?
+  recipe    Recipe   @relation(fields: [recipeId], references: [id])
+}
+
+model RecipeInstruction {
+  id        Int      @id @default(autoincrement())
+  recipeId  Int
+  stepNumber Int
+  instruction String
+  recipe    Recipe   @relation(fields: [recipeId], references: [id])
+}
